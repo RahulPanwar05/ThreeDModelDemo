@@ -1,59 +1,37 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
-import * as THREE from "three";
+import { productInfoMap } from "../data/productInfo";
 
-const ClickableMesh = ({ mesh, onMeshClick }) => {
-  const [hovered, setHovered] = useState(false);
+const Model = ({ onMeshClick }) => {
+  const { scene } = useGLTF("/IMI Norgren_final_file_glb.glb");
 
-  // Clone material to safely change its color on hover
   useEffect(() => {
-    mesh.material = mesh.material.clone();
-  }, [mesh]);
+    scene.traverse((child) => {
+      if (child.isMesh && productInfoMap[child.name]) {
+        child.userData.clickable = true;
+        child.material.color.set("#ffcc00"); // yellow highlight
+      }
+    });
+  }, [scene]);
+
+  const handlePointerDown = (event) => {
+    const meshName = event.object.name;
+    if (event.object.userData.clickable) {
+      const productData = productInfoMap[meshName];
+      if (productData) {
+        console.log("Clicked:", meshName, productData);
+        onMeshClick(productData);
+      }
+    }
+  };
 
   return (
     <primitive
-      object={mesh}
-      onClick={() => onMeshClick({ name: "Train Door" })} // Dummy data
-      onPointerOver={() => {
-        setHovered(true);
-        document.body.style.cursor = "pointer";
-      }}
-      onPointerOut={() => {
-        setHovered(false);
-        document.body.style.cursor = "default";
-      }}
-      material-color={hovered ? "#ffcc00" : "#ffffff"}
+      object={scene}
+      onPointerDown={handlePointerDown}
+      dispose={null}
     />
-  );
-};
-
-const Model = ({ onMeshClick }) => {
-  const { scene } = useGLTF("./public/IMI Norgren_final_file_glb.glb");
-  const [clickableMesh, setClickableMesh] = useState(null);
-
-  useEffect(() => {
-    let targetMesh = null;
-    scene.traverse((child) => {
-      if (child.isMesh && child.name === "Circle023_2") {
-        targetMesh = child;
-      }
-    });
-    if (targetMesh) {
-      setClickableMesh(targetMesh);
-    }
-  }, [scene]);
-
-  return (
-    <>
-      {/* Full model but without the clickable mesh */}
-      <primitive object={scene} />
-
-      {/* Add the clickable mesh separately */}
-      {clickableMesh && (
-        <ClickableMesh mesh={clickableMesh} onMeshClick={onMeshClick} />
-      )}
-    </>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import ModelViewer from "./components/ModelViewer";
 import ProductModal from "./components/ProductModel";
 
@@ -7,7 +7,12 @@ const App = () => {
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
-      <ModelViewer onMeshClick={setSelectedProduct} />
+      <ModelViewer
+        onMeshClick={(meshData) => {
+          console.log("Clicked mesh:", meshData); // 🔍 Log clicked mesh
+          setSelectedProduct(meshData); // Set state for modal
+        }}
+      />
       {selectedProduct && (
         <ProductModal
           product={selectedProduct}
