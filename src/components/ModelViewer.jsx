@@ -37,10 +37,19 @@ const Model = ({ onMeshClick }) => {
 
 const ModelViewer = ({ onMeshClick }) => {
   return (
-    <Canvas camera={{ position: [0, 2, 5], fov: 50 }}>
-      <ambientLight />
-      <directionalLight position={[5, 10, 5]} />
-      <OrbitControls />
+    <Canvas camera={{ position: [0, 2, 5], fov: 45 }}>
+      <ambientLight intensity={0.8} />
+      <directionalLight position={[5, 10, 5]} intensity={1} />
+      <OrbitControls
+        enableDamping
+        dampingFactor={0.1}
+        rotateSpeed={0.5}
+        zoomSpeed={0.6}
+        maxDistance={30}
+        minDistance={3}
+        maxPolarAngle={Math.PI / 2.2} // prevents flipping upside down
+        target={[0, 1, 0]} // focus on center of model
+      />
       <Model onMeshClick={onMeshClick} />
     </Canvas>
   );
